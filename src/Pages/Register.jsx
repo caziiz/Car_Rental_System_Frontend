@@ -9,7 +9,6 @@ function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [role, setRole] = useState("Staff");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -51,7 +50,7 @@ function Register() {
       fullName: fullName.trim(),
       email: email.trim(),
       password: password.trim(),
-      role,
+      role: "Staff",
     });
     setSubmitting(false);
 
@@ -73,7 +72,7 @@ function Register() {
       <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-3xl shadow-xl border border-slate-200 dark:border-zinc-800 p-8">
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Create account</h1>
         <p className="text-sm text-slate-500 dark:text-zinc-400 mb-6">
-          Register a new backend user account. Choose the role that matches your access level.
+          Register a new account. All new accounts start with Staff access — an Admin can upgrade your role later.
         </p>
 
         {error && <div className="mb-4 rounded-lg bg-red-100 text-red-700 px-4 py-3">{error}</div>}
@@ -122,18 +121,6 @@ function Register() {
               className="mt-2 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
               placeholder="Re-enter your password"
             />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-zinc-300">Role</label>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="mt-2 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
-            >
-              <option value="Staff">Staff</option>
-              <option value="Admin">Admin</option>
-            </select>
           </div>
 
           <button
