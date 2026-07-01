@@ -68,13 +68,53 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const register = async ({ fullName, email, password, role }) => {
+    if (!API_URL) {
+      return { success: false, message: "Backend API URL is not configured." };
+    }
+
+    try {
+      const usersEndpoint = `${API_URL}/Users`;
+
+      // Check if email is already taken before creating the account
+      const existingResponse = await axios.get(usersEndpoint);
+      const existingResult = existingResponse.data;
+
+      if (existingResult?.status && Array.isArray(existingResult.data)) {
+        const alreadyExists = findUserByEmail(existingResult.data, email);
+        if (alreadyExists) {
+          return { success: false, message: "An account with this email already exists." };
+        }
+      }
+
+      const newUser = {
+        fullName: fullName.trim(),
+        email: email.trim(),
+        passwordHash: password.trim(),
+        role,
+      };
+
+      const response = await axios.post(usersEndpoint, newUser);
+      const result = response.data;
+
+      if (!result?.status) {
+        return { success: false, message: result?.message || "Registration failed." };
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error("Registration failed:", error);
+      return { success: false, message: "Registration failed. Please try again." };
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem(STORAGE_KEY);
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAdmin: user?.role === "Admin" }}>
+    <AuthContext.Provider value={{ user, login, register, logout, isAdmin: user?.role === "Admin" }}>
       {children}
     </AuthContext.Provider>
   );

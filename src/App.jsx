@@ -15,6 +15,8 @@ import AddPayment from "./Services/AddPayment";
 import Login from "./Pages/Login";
 import { AuthProvider, useAuth } from "./Context/AuthContext";
 import Reports from "./Pages/Reports";
+import Register from "./Pages/Register";
+
 
 
 function ProtectedRoute({ children }) {
@@ -73,6 +75,9 @@ function App() {
 
             {/* Reports */}
             <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+
+            {/* Register */}
+               <Route path="/register" element={<Register />} />
           </Routes>
         </div>
       </div>
