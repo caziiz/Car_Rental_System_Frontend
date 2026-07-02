@@ -44,11 +44,15 @@ function AddPayment() {
         due = selectedRental.totalAmount;
       } else if (selectedRental.dailyRate) {
         const start = new Date(selectedRental.startDate);
-        const end = new Date(selectedRental.endDate);
-        // Use the rental's actual end date, not "today", to compute duration.
-        // Fall back to today only if the rental has no end date yet.
-        const referenceEnd = selectedRental.endDate ? end : new Date();
-        const days = Math.max(1, Math.ceil((referenceEnd - start) / (1000 * 60 * 60 * 24)));
+        // Use actualEndDate if the rental has been returned, otherwise
+        // fall back to expectedEndDate. Only use "today" as a last resort
+        // if neither date is available.
+        const endDateStr =
+          selectedRental.actualEndDate ||
+          selectedRental.expectedEndDate ||
+          null;
+        const end = endDateStr ? new Date(endDateStr) : new Date();
+        const days = Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)));
         due = parseFloat((days * selectedRental.dailyRate).toFixed(2));
       }
       setTotalDue(due);
