@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../Context/AuthContext";
-import register from "./Pages/Register";
-
+import Register from "./Register.jsx";
 function Login() {
   const navigate = useNavigate();
   const { user, login } = useAuth();
