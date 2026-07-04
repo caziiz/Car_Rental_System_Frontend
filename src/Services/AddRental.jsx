@@ -39,8 +39,8 @@ const loadDropdowns = async () => {
       axios.get(`${API_URL}/Vehicles`),
     ]);
     if (customersRes.data.status) setCustomers(
-      customersRes.data.data.filter((c) => c.isBlacklisted === false)
-    );
+  customersRes.data.data.filter((c) => !c.isBlacklisted)
+);
     if (vehiclesRes.data.status) setVehicles(
       vehiclesRes.data.data.filter((v) => v.status === "Available")
     );
