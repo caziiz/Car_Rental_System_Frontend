@@ -32,18 +32,22 @@ function AddRental() {
 
   const totalAmount = totalDays * (parseFloat(dailyRate) || 0);
 
-  const loadDropdowns = async () => {
-    try {
-      const [customersRes, vehiclesRes] = await Promise.all([
-        axios.get(`${API_URL}/Customers`),
-        axios.get(`${API_URL}/Vehicles`),
-      ]);
-      if (customersRes.data.status) setCustomers(customersRes.data.data);
-      if (vehiclesRes.data.status)  setVehicles(vehiclesRes.data.data.filter((v) => v.status === "Available"));
-    } catch (error) {
-      console.error("Error loading dropdowns:", error);
-    }
-  };
+const loadDropdowns = async () => {
+  try {
+    const [customersRes, vehiclesRes] = await Promise.all([
+      axios.get(`${API_URL}/Customers`),
+      axios.get(`${API_URL}/Vehicles`),
+    ]);
+    if (customersRes.data.status) setCustomers(
+      customersRes.data.data.filter((c) => c.isBlacklisted === false)
+    );
+    if (vehiclesRes.data.status) setVehicles(
+      vehiclesRes.data.data.filter((v) => v.status === "Available")
+    );
+  } catch (error) {
+    console.error("Error loading dropdowns:", error);
+  }
+};
 
   const handleVehicleChange = (e) => {
     const selectedId = e.target.value;
