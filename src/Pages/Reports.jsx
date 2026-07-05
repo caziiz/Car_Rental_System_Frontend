@@ -1,6 +1,8 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import AnimatedPage from "../components/AnimatedPage";
+import PageHeader from "../components/PageHeader";
+import StatCard from "../components/StatCard";
 import {
   IconFileText,
   IconUsers,
@@ -90,11 +92,8 @@ function Reports() {
       <div className="min-h-screen bg-slate-100 dark:bg-zinc-900 p-4 sm:p-6 print:bg-white print:p-0">
 
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg p-5 sm:p-6 mb-6 print:hidden">
-          <div className="flex items-center justify-center gap-3 text-white text-center">
-            <IconClipboardList size={34} />
-            <h1 className="text-2xl sm:text-3xl font-bold">System Reports</h1>
-          </div>
+        <div className="print:hidden">
+          <PageHeader title="System Reports" icon={IconClipboardList} />
         </div>
 
         {/* Print Title */}
@@ -137,23 +136,11 @@ function Reports() {
 
         {/* Summary Stats */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-          {[
-            { label: "Total Revenue",    value: `$${totalRevenue.toFixed(2)}`, color: "text-blue-600",  icon: <IconCreditCard size={32} className="text-blue-400" /> },
-            { label: "Active Rentals",   value: activeRentals,                 color: "text-green-600", icon: <IconFileText size={32} className="text-green-400" /> },
-            { label: "Returned Rentals", value: returnedRentals,               color: "text-indigo-600",icon: <IconFileText size={32} className="text-indigo-400" /> },
-            { label: "Total Customers",  value: filteredCustomers.length,      color: "text-gray-800 dark:text-white", icon: <IconUsers size={32} className="text-purple-400" /> },
-            { label: "Available Cars",   value: availableVehicles,             color: "text-green-600", icon: <IconCar size={32} className="text-green-400" /> },
-          ].map((stat, i) => (
-            <div key={i} className="bg-white dark:bg-zinc-800 rounded-xl shadow-md p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-500 dark:text-zinc-400 text-xs">{stat.label}</p>
-                  <h3 className={`text-2xl font-bold ${stat.color}`}>{stat.value}</h3>
-                </div>
-                {stat.icon}
-              </div>
-            </div>
-          ))}
+          <StatCard label="Total Revenue"    value={`$${totalRevenue.toFixed(2)}`} icon={IconCreditCard}   iconColor="text-blue-400"   valueColor="text-blue-600" />
+          <StatCard label="Active Rentals"   value={activeRentals}                 icon={IconFileText}     iconColor="text-green-400"  valueColor="text-green-600" />
+          <StatCard label="Returned Rentals" value={returnedRentals}               icon={IconFileText}     iconColor="text-indigo-400" valueColor="text-indigo-600" />
+          <StatCard label="Total Customers"  value={filteredCustomers.length}      icon={IconUsers}        iconColor="text-purple-400" />
+          <StatCard label="Available Cars"   value={availableVehicles}             icon={IconCar}          iconColor="text-green-400"  valueColor="text-green-600" />
         </div>
 
         {/* Rentals Report */}

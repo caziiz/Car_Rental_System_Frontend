@@ -2,8 +2,15 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AnimatedPage from "../components/AnimatedPage";
+import PageHeader from "../components/PageHeader";
+import StatCard from "../components/StatCard";
+import AddButton from "../components/AddButton";
+import Badge from "../components/Badge";
+import ActionButtons from "../components/ActionButtons";
+import ConfirmModal from "../components/ConfirmModal";
+import SearchInput from "../components/SearchInput";
 import {
-  IconCreditCard, IconPlus, IconTrash, IconList, IconSearch,
+  IconCreditCard, IconList,
   IconCircleCheck, IconClock, IconRefresh, IconCurrencyDollar,
   IconCar, IconCalendar,
 } from "@tabler/icons-react";
@@ -15,6 +22,7 @@ function Payments() {
   const [rentals_data, setRentals_data]   = useState([]);
   const [totalRevenue, setTotalRevenue]   = useState(0);
   const [search, setSearch]               = useState("");
+  const [confirmId, setConfirmId]         = useState(null); // paymentId pending delete
   const navigate = useNavigate();
 
   const loadPaymentsData = async () => {
@@ -38,8 +46,9 @@ function Payments() {
     } catch (error) { console.error(error); alert("Failed to update payment status"); }
   };
 
-  const handleDelete = async (paymentId) => {
-    if (!window.confirm("Are you sure you want to delete this payment?")) return;
+  const confirmDelete = async () => {
+    const paymentId = confirmId;
+    setConfirmId(null);
     try {
       const response = await axios.delete(`${API_URL}/Payments/${paymentId}`);
       if (response.data.status) { alert("Payment deleted successfully!"); loadPaymentsData(); }
@@ -47,13 +56,11 @@ function Payments() {
     } catch (error) { console.error(error); alert("Failed to delete payment"); }
   };
 
-  // Get total amount due for a rental
   const getRentalTotal = (rentalId) => {
     const rental = rentals_data.find((r) => r.rentalId === rentalId);
     return rental?.totalAmount || 0;
   };
 
-  // Get remaining amount for a pending payment
   const getRemaining = (payment) => {
     const total = getRentalTotal(payment.rentalId);
     if (!total) return null;
@@ -73,79 +80,75 @@ function Payments() {
     p.status.toLowerCase().includes(search.toLowerCase())
   );
 
-  const getStatusStyle = (status) => {
+  const getStatusColor = (status) => {
     switch (status) {
-      case "Completed": return "bg-green-100 text-green-700";
-      case "Pending":   return "bg-yellow-100 text-yellow-700";
-      case "Refunded":  return "bg-red-100 text-red-700";
-      default:          return "bg-gray-100 text-gray-700";
+      case "Completed": return "green";
+      case "Pending":   return "yellow";
+      case "Refunded":  return "red";
+      default:          return "gray";
     }
   };
 
-  const getMethodStyle = (method) => {
+  const getMethodColor = (method) => {
     switch (method) {
-      case "Cash":          return "bg-blue-100 text-blue-700";
-      case "Credit Card":   return "bg-purple-100 text-purple-700";
-      case "Debit Card":    return "bg-indigo-100 text-indigo-700";
-      case "Bank Transfer": return "bg-orange-100 text-orange-700";
-      default:              return "bg-gray-100 text-gray-700";
+      case "Cash":          return "blue";
+      case "Credit Card":   return "purple";
+      case "Debit Card":    return "indigo";
+      case "Bank Transfer": return "orange";
+      default:              return "gray";
     }
   };
+
+  const renderActions = (payment) => (
+    <div className="flex justify-center items-center gap-2">
+      {payment.status === "Pending" && (
+        <button
+          onClick={() => handleUpdateStatus(payment.paymentId, "Completed")}
+          className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded-lg text-xs transition"
+        >
+          Complete
+        </button>
+      )}
+      {payment.status === "Completed" && (
+        <button
+          onClick={() => handleUpdateStatus(payment.paymentId, "Refunded")}
+          className="bg-orange-500 hover:bg-orange-600 text-white px-2 py-1 rounded-lg text-xs transition"
+        >
+          Refund
+        </button>
+      )}
+      <ActionButtons showEdit={false} onDelete={() => setConfirmId(payment.paymentId)} />
+    </div>
+  );
 
   return (
     <AnimatedPage>
       <div className="min-h-screen bg-slate-100 dark:bg-zinc-900 p-4 sm:p-6">
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg p-5 sm:p-6 mb-6">
-          <div className="flex items-center justify-center gap-3 text-white text-center">
-            <IconCreditCard size={28} className="sm:size-[34px] flex-shrink-0" />
-            <h1 className="text-2xl sm:text-3xl font-bold">Payment Management</h1>
-          </div>
-        </div>
+
+        <PageHeader title="Payment Management" icon={IconCreditCard} />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-md p-5">
-            <div className="flex items-center justify-between">
-              <div><p className="text-gray-500 dark:text-zinc-400 text-sm">Total Revenue</p><h3 className="text-3xl font-bold text-blue-600">${totalRevenue}</h3></div>
-              <IconCurrencyDollar size={40} className="text-blue-500" />
-            </div>
-          </div>
-          <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-md p-5">
-            <div className="flex items-center justify-between">
-              <div><p className="text-gray-500 dark:text-zinc-400 text-sm">Completed</p><h3 className="text-3xl font-bold text-green-600">{completedPayments}</h3></div>
-              <IconCircleCheck size={40} className="text-green-500" />
-            </div>
-          </div>
-          <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-md p-5">
-            <div className="flex items-center justify-between">
-              <div><p className="text-gray-500 dark:text-zinc-400 text-sm">Pending</p><h3 className="text-3xl font-bold text-yellow-600">{pendingPayments}</h3></div>
-              <IconClock size={40} className="text-yellow-500" />
-            </div>
-          </div>
-          <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-md p-5">
-            <div className="flex items-center justify-between">
-              <div><p className="text-gray-500 dark:text-zinc-400 text-sm">Refunded</p><h3 className="text-3xl font-bold text-red-600">{refundedPayments}</h3></div>
-              <IconRefresh size={40} className="text-red-500" />
-            </div>
-          </div>
+          <StatCard label="Total Revenue" value={`$${totalRevenue}`} icon={IconCurrencyDollar} iconColor="text-blue-500" valueColor="text-blue-600" />
+          <StatCard label="Completed"     value={completedPayments}  icon={IconCircleCheck}     iconColor="text-green-500" valueColor="text-green-600" />
+          <StatCard label="Pending"       value={pendingPayments}    icon={IconClock}            iconColor="text-yellow-500" valueColor="text-yellow-600" />
+          <StatCard label="Refunded"      value={refundedPayments}   icon={IconRefresh}          iconColor="text-red-500" valueColor="text-red-600" />
         </div>
 
         <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-lg overflow-hidden">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-5 sm:px-6 py-4 border-b bg-slate-50 dark:bg-zinc-900 dark:border-zinc-700">
             <div className="flex items-center gap-2">
               <IconList size={22} className="text-blue-600" />
-              <h2 className="font-semibold text-lg text-gray-800 dark:text-white">Payments List <span className="ml-2 text-sm font-normal text-gray-400 dark:text-zinc-500">({filtered_data.length})</span></h2>
+              <h2 className="font-semibold text-lg text-gray-800 dark:text-white">
+                Payments List <span className="ml-2 text-sm font-normal text-gray-400 dark:text-zinc-500">({filtered_data.length})</span>
+              </h2>
             </div>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              <div className="flex items-center gap-2 bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-600 rounded-lg px-3 py-2 shadow-sm w-full sm:w-auto">
-                <IconSearch size={18} className="text-gray-400 flex-shrink-0" />
-                <input type="text" placeholder="Search by customer, method..." className="outline-none text-sm text-gray-700 dark:text-white dark:bg-zinc-800 w-full sm:w-56" value={search} onChange={(e) => setSearch(e.target.value)} />
-              </div>
-              <button onClick={() => navigate("/add-payment")} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-all duration-200 shadow w-full sm:w-auto">
-                <IconPlus size={18} /> Add Payment
-              </button>
+              <SearchInput value={search} onChange={setSearch} placeholder="Search by customer, method..." />
+              <AddButton label="Add Payment" to="/add-payment" />
             </div>
           </div>
 
+          {/* Desktop Table */}
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -177,16 +180,10 @@ function Payments() {
                           <span className="text-gray-400 dark:text-zinc-500">—</span>
                         )}
                       </td>
-                      <td className="px-5 py-4"><span className={`px-3 py-1 rounded-full text-xs font-semibold ${getMethodStyle(payment.paymentMethod)}`}>{payment.paymentMethod}</span></td>
+                      <td className="px-5 py-4"><Badge label={payment.paymentMethod} color={getMethodColor(payment.paymentMethod)} /></td>
                       <td className="px-5 py-4 text-gray-600 dark:text-zinc-300">{new Date(payment.paymentDate).toLocaleDateString()}</td>
-                      <td className="px-5 py-4"><span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusStyle(payment.status)}`}>{payment.status}</span></td>
-                      <td className="px-5 py-4">
-                        <div className="flex justify-center gap-2">
-                          {payment.status === "Pending" && <button onClick={() => handleUpdateStatus(payment.paymentId, "Completed")} className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded-lg text-xs transition">Complete</button>}
-                          {payment.status === "Completed" && <button onClick={() => handleUpdateStatus(payment.paymentId, "Refunded")} className="bg-orange-500 hover:bg-orange-600 text-white px-2 py-1 rounded-lg text-xs transition">Refund</button>}
-                          <button onClick={() => handleDelete(payment.paymentId)} className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition shadow-sm"><IconTrash size={18} /></button>
-                        </div>
-                      </td>
+                      <td className="px-5 py-4"><Badge label={payment.status} color={getStatusColor(payment.status)} /></td>
+                      <td className="px-5 py-4">{renderActions(payment)}</td>
                     </tr>
                   );
                 }) : <tr><td colSpan="9" className="text-center py-10 text-gray-500 dark:text-zinc-400">No payments found.</td></tr>}
@@ -194,6 +191,7 @@ function Payments() {
             </table>
           </div>
 
+          {/* Mobile Cards */}
           <div className="md:hidden">
             {filtered_data.length > 0 ? (
               <div className="divide-y divide-gray-100 dark:divide-zinc-700">
@@ -206,7 +204,7 @@ function Payments() {
                           <p className="font-semibold text-gray-800 dark:text-white">{payment.customerName}</p>
                           <p className="text-xs text-gray-400 dark:text-zinc-500">#{payment.paymentId}</p>
                         </div>
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${getStatusStyle(payment.status)}`}>{payment.status}</span>
+                        <Badge label={payment.status} color={getStatusColor(payment.status)} />
                       </div>
                       <div className="space-y-2 mb-4">
                         <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-zinc-300"><IconCar size={16} className="text-gray-400 flex-shrink-0" /><span>{payment.vehicleName}</span></div>
@@ -217,13 +215,9 @@ function Payments() {
                             <span className="font-semibold text-red-500">Remaining: ${remaining.toFixed(2)}</span>
                           )}
                         </div>
-                        <div><span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${getMethodStyle(payment.paymentMethod)}`}>{payment.paymentMethod}</span></div>
+                        <Badge label={payment.paymentMethod} color={getMethodColor(payment.paymentMethod)} />
                       </div>
-                      <div className="flex gap-2">
-                        {payment.status === "Pending" && <button onClick={() => handleUpdateStatus(payment.paymentId, "Completed")} className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg text-sm font-medium transition">Complete</button>}
-                        {payment.status === "Completed" && <button onClick={() => handleUpdateStatus(payment.paymentId, "Refunded")} className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg text-sm font-medium transition">Refund</button>}
-                        <button onClick={() => handleDelete(payment.paymentId)} className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg transition shadow-sm flex items-center justify-center gap-2 text-sm font-medium"><IconTrash size={16} />Delete</button>
-                      </div>
+                      {renderActions(payment)}
                     </div>
                   );
                 })}
@@ -231,6 +225,14 @@ function Payments() {
             ) : <div className="text-center py-10 text-gray-500 dark:text-zinc-400">No payments found.</div>}
           </div>
         </div>
+
+        <ConfirmModal
+          isOpen={confirmId !== null}
+          title="Delete Payment"
+          message="Are you sure you want to delete this payment? This cannot be undone."
+          onConfirm={confirmDelete}
+          onCancel={() => setConfirmId(null)}
+        />
       </div>
     </AnimatedPage>
   );

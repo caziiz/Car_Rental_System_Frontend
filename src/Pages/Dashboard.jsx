@@ -2,6 +2,8 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import AnimatedPage from "../components/AnimatedPage";
 import { useAuth } from "../Context/AuthContext";
+import StatCard from "../components/StatCard";
+import PageHeader from "../components/PageHeader";
 import {
   IconUsers,
   IconCar,
@@ -29,10 +31,10 @@ function Dashboard() {
   const { user } = useAuth();
   const isAdmin = user?.role === "Admin";
 
-  const [users, setUsers]             = useState([]);
-  const [vehicles, setVehicles]       = useState([]);
+  const [users, setUsers]               = useState([]);
+  const [vehicles, setVehicles]         = useState([]);
   const [totalRevenue, setTotalRevenue] = useState(0);
-  const [payments, setPayments]       = useState([]);
+  const [payments, setPayments]         = useState([]);
 
   const loadData = async () => {
     try {
@@ -64,84 +66,64 @@ function Dashboard() {
     { name: "Maintenance", value: maintenanceVehicles, color: "#ea580c" },
   ];
 
-  // Dynamic bar chart from real payments data
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const barData = months.map((month, index) => ({
     month,
     revenue: payments
       .filter((p) => p.status === "Completed" && new Date(p.paymentDate).getMonth() === index)
-      .reduce((sum, p) => sum + p.amount, 0)
-  })).filter((d) => d.revenue > 0); // only show months with data
+      .reduce((sum, p) => sum + p.amount, 0),
+  })).filter((d) => d.revenue > 0);
 
   return (
     <AnimatedPage>
       <div className="min-h-screen bg-slate-100 dark:bg-zinc-900 p-6">
 
         {/* Header */}
-        <div className="bg-linear-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg p-6 mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="text-white">
-            <p className="text-blue-200 text-sm">Welcome back, {user?.fullName || user?.email || "User"} 👋</p>
-            <h1 className="text-3xl font-bold">Dashboard</h1>
-            <p className="mt-1 text-blue-100 text-sm">Role: {user?.role || "Staff"}</p>
-          </div>
-          <p className="text-blue-200 text-sm">June 2026</p>
-        </div>
+        <PageHeader
+          title="Dashboard"
+          subtitle={`Welcome back, ${user?.fullName || user?.email || "User"} 👋`}
+          rightContent={`Role: ${user?.role || "Staff"}`}
+/>
 
         {/* Stats Cards */}
         <div className={`grid grid-cols-1 ${isAdmin ? "md:grid-cols-5" : "md:grid-cols-2"} gap-4 mb-6`}>
           {isAdmin && (
-            <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-md p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-500 dark:text-zinc-400 text-sm">Total Users</p>
-                  <h3 className="text-3xl font-bold text-gray-800 dark:text-white">{users.length}</h3>
-                </div>
-                <IconUsers size={40} className="text-blue-500" />
-              </div>
-            </div>
+            <StatCard
+              label="Total Users"
+              value={users.length}
+              icon={IconUsers}
+              iconColor="text-blue-500"
+            />
           )}
-
           {isAdmin && (
-            <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-md p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-500 dark:text-zinc-400 text-sm">Total Revenue</p>
-                  <h3 className="text-3xl font-bold text-blue-600">${totalRevenue}</h3>
-                </div>
-                <IconCurrencyDollar size={40} className="text-blue-500" />
-              </div>
-            </div>
+            <StatCard
+              label="Total Revenue"
+              value={`$${totalRevenue}`}
+              icon={IconCurrencyDollar}
+              iconColor="text-blue-500"
+              valueColor="text-blue-600"
+            />
           )}
-
-          <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-md p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-500 dark:text-zinc-400 text-sm">Total Vehicles</p>
-                <h3 className="text-3xl font-bold text-gray-800 dark:text-white">{vehicles.length}</h3>
-              </div>
-              <IconCar size={40} className="text-indigo-500" />
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-md p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-500 dark:text-zinc-400 text-sm">Available</p>
-                <h3 className="text-3xl font-bold text-green-600">{availableVehicles}</h3>
-              </div>
-              <IconCircleCheck size={40} className="text-green-500" />
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-md p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-500 dark:text-zinc-400 text-sm">Maintenance</p>
-                <h3 className="text-3xl font-bold text-orange-600">{maintenanceVehicles}</h3>
-              </div>
-              <IconTool size={40} className="text-orange-500" />
-            </div>
-          </div>
+          <StatCard
+            label="Total Vehicles"
+            value={vehicles.length}
+            icon={IconCar}
+            iconColor="text-indigo-500"
+          />
+          <StatCard
+            label="Available"
+            value={availableVehicles}
+            icon={IconCircleCheck}
+            iconColor="text-green-500"
+            valueColor="text-green-600"
+          />
+          <StatCard
+            label="Maintenance"
+            value={maintenanceVehicles}
+            icon={IconTool}
+            iconColor="text-orange-500"
+            valueColor="text-orange-600"
+          />
         </div>
 
         {isAdmin ? (
@@ -192,6 +174,7 @@ function Dashboard() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
             {/* Staff only sees vehicle status */}
             <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-lg p-6">
               <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">Vehicle Status</h2>
@@ -214,8 +197,10 @@ function Dashboard() {
                 As a staff member you can manage Vehicles, Customers, Rentals and Payments from the sidebar.
               </p>
             </div>
+
           </div>
         )}
+
       </div>
     </AnimatedPage>
   );
