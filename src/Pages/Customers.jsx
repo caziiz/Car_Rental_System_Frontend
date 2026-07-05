@@ -4,9 +4,9 @@ import { useNavigate } from "react-router-dom";
 import AnimatedPage from "../components/AnimatedPage";
 import Badge from "../components/Badge";
 import StatCard from "../components/StatCard";
-import PageHeader from "../components/PageHeader";
-import ActionButtons from "../components/ActionButtons";
-import AddButton from "../components/AddButton";
+import PageHeader from "../components/Pageheader";
+import ActionButtons from "../components/Actionbuttons";
+import AddButton from "../components/Addbutton";
 import ConfirmModal from "../components/ConfirmModal";
 import SearchInput from "../components/SearchInput";
 import {

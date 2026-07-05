@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import AnimatedPage from "../components/AnimatedPage";
 import { useAuth } from "../Context/AuthContext";
 import StatCard from "../components/StatCard";
-import PageHeader from "../components/PageHeader";
+import PageHeader from "../components/Pageheader";
 import {
   IconUsers,
   IconCar,

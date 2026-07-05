@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import AnimatedPage from "../components/AnimatedPage";
-import PageHeader from "../components/PageHeader";
+import PageHeader from "../components/Pageheader";
 import StatCard from "../components/StatCard";
 import {
   IconFileText,
