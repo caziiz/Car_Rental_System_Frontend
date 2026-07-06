@@ -16,6 +16,8 @@ import Login from "./Pages/Login";
 import { AuthProvider, useAuth } from "./Context/AuthContext";
 import Reports from "./Pages/Reports";
 import Register from "./Pages/Register";
+import ForgotPassword from "./Pages/ForgotPassword";
+
 
 
 
@@ -77,7 +79,8 @@ function App() {
             <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
 
             {/* Register */}
-               <Route path="/register" element={<Register />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
           </Routes>
         </div>
       </div>
