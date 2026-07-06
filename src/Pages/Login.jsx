@@ -1,39 +1,31 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../Context/AuthContext";
-import Register from "./Register.jsx";
+
 function Login() {
   const navigate = useNavigate();
   const { user, login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      navigate("/dashboard", { replace: true });
-    }
+    if (user) navigate("/dashboard", { replace: true });
   }, [user, navigate]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
 
-    if (!email.trim()) {
-      setError("Please enter your email.");
-      return;
-    }
-    if (!password.trim()) {
-      setError("Please enter your password.");
-      return;
-    }
+    if (!email.trim()) { setError("Please enter your email."); return; }
+    if (!password.trim()) { setError("Please enter your password."); return; }
 
+    setSubmitting(true);
     const result = await login({ email: email.trim(), password: password.trim() });
-    if (!result.success) {
-      setError(result.message);
-      return;
-    }
+    setSubmitting(false);
 
+    if (!result.success) { setError(result.message); return; }
     navigate("/dashboard", { replace: true });
   };
 
@@ -45,7 +37,9 @@ function Login() {
           Sign in with your backend user account. Admin and Staff access is assigned from your backend role.
         </p>
 
-        {error && <div className="mb-4 rounded-lg bg-red-100 text-red-700 px-4 py-3">{error}</div>}
+        {error && (
+          <div className="mb-4 rounded-lg bg-red-100 text-red-700 px-4 py-3">{error}</div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -58,7 +52,6 @@ function Login() {
               placeholder="you@example.com"
             />
           </div>
-
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-zinc-300">Password</label>
             <input
@@ -70,11 +63,21 @@ function Login() {
             />
           </div>
 
+          <div className="flex justify-end">
+            <Link
+              to="/forgot-password"
+              className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+            >
+              Forgot password?
+            </Link>
+          </div>
+
           <button
             type="submit"
-            className="w-full rounded-2xl bg-blue-600 px-4 py-3 text-white font-semibold shadow hover:bg-blue-700 transition"
+            disabled={submitting}
+            className="w-full rounded-2xl bg-blue-600 px-4 py-3 text-white font-semibold shadow hover:bg-blue-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Sign in
+            {submitting ? "Signing in..." : "Sign in"}
           </button>
         </form>
 
