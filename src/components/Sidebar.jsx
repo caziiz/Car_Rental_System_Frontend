@@ -84,7 +84,7 @@ function Sidebar() {
             alt="Logo"
             className="w-10 h-10 object-contain"
           />
-          <h1 className="text-xl font-bold">Car Rental</h1>
+          <h1 className="text-xl font-bold">Car Rental System</h1>
         </div>
 
         <button className="lg:hidden" onClick={() => setIsOpen(false)}>

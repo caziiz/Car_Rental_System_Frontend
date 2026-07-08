@@ -106,6 +106,24 @@ function ForgotPassword() {
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-3xl shadow-xl border border-slate-200 dark:border-zinc-800 p-8">
+        {/* Logo & Header */}
+        <div className="flex flex-col items-center mb-8">
+          <img
+            src="/Logo.jpg"
+            alt="Car Rental Logo"
+            className="w-24 h-24 object-contain mb-4"
+          />
+
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+            Car Rental
+          </h1>
+
+          <p className="text-blue-600 font-medium">
+            Management System
+          </p>
+
+          
+        </div>
 
         {/* Step 1 — Email lookup */}
         {step === "email" && (
