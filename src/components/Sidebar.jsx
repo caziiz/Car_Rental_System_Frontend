@@ -77,15 +77,20 @@ function Sidebar() {
         lg:translate-x-0
       `}>
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-6 border-b border-blue-500">
-          <div className="flex items-center gap-3">
-            <IconLayoutDashboard size={28} />
-            <h1 className="text-xl font-bold">Car Rental</h1>
-          </div>
-          <button className="lg:hidden" onClick={() => setIsOpen(false)}>
-            <IconX size={24} />
-          </button>
+      <div className="flex items-center justify-between px-6 py-6 border-b border-blue-500">
+        <div className="flex items-center gap-3">
+          <img
+            src="/Logo.jpg"
+            alt="Logo"
+            className="w-10 h-10 object-contain"
+          />
+          <h1 className="text-xl font-bold">Car Rental</h1>
         </div>
+
+        <button className="lg:hidden" onClick={() => setIsOpen(false)}>
+          <IconX size={24} />
+        </button>
+      </div>
 
         {/* Menu */}
         <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
