@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AnimatedPage from "../components/AnimatedPage";
@@ -9,12 +8,12 @@ import AddButton from "../components/Addbutton";
 import Badge from "../components/Badge";
 import ConfirmModal from "../components/ConfirmModal";
 import SearchInput from "../components/SearchInput";
+import api from "../Services/api";
 import {
   IconCar, IconList,
   IconCircleCheck, IconTool, IconClockHour4, IconCurrencyDollar, IconLicense,
 } from "@tabler/icons-react";
 
-const API_URL = import.meta.env.VITE_API_CAR_RENTAL;
 
 function Vehicles() {
   const [vehicles_data, setVehicles_data] = useState([]);
@@ -24,7 +23,7 @@ function Vehicles() {
 
   const loadVehiclesData = async () => {
     try {
-      const response = await axios.get(`${API_URL}/Vehicles`);
+      const response = await api.get(`/Vehicles`);
       if (response.data.status) setVehicles_data(response.data.data);
     } catch (error) { console.error("Error loading vehicles data:", error); }
   };
@@ -33,7 +32,7 @@ function Vehicles() {
     const vehicleId = confirmId;
     setConfirmId(null);
     try {
-      const response = await axios.delete(`${API_URL}/Vehicles/${vehicleId}`);
+      const response = await api.delete(`/Vehicles/${vehicleId}`);
       if (response.data.status) { alert("Vehicle deleted successfully!"); loadVehiclesData(); }
       else alert("Failed to delete vehicle");
     } catch (error) { console.error(error); alert("Failed to delete vehicle"); }

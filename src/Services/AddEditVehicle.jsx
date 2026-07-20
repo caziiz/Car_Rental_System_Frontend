@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import AnimatedPage from "../components/AnimatedPage";
@@ -8,7 +7,7 @@ import {
   IconEraser,
   IconArrowLeft,
 } from "@tabler/icons-react";
-
+import api from "./api";  // same folder
 function AddEditVehicle() {
   const navigate = useNavigate();
   const { vehicleId } = useParams();
@@ -23,7 +22,6 @@ function AddEditVehicle() {
   const [status, setStatus] = useState("Available");
   const [mileage, setMileage] = useState("");
 
-  const API_URL = import.meta.env.VITE_API_CAR_RENTAL;
 
   const validateInputs = () => {
     if (!make.trim()) return alert("Please enter make"), false;
@@ -48,7 +46,7 @@ function AddEditVehicle() {
 
   const loadVehicle = async () => {
     try {
-      const response = await axios.get(`${API_URL}/Vehicles/${vehicleId}`);
+      const response = await api.get(`/Vehicles/${vehicleId}`);
       const result = response.data;
       if (result.status) {
         const v = result.data[0];
@@ -88,7 +86,7 @@ function AddEditVehicle() {
       };
 
       if (isEditing) {
-        const response = await axios.put(`${API_URL}/Vehicles`, vehicle);
+        const response = await api.put(`/Vehicles`, vehicle);
         if (response.data.status) {
           alert("Vehicle updated successfully!");
           navigate("/vehicles");
@@ -96,7 +94,7 @@ function AddEditVehicle() {
           alert("Failed to update vehicle");
         }
       } else {
-        const response = await axios.post(`${API_URL}/Vehicles`, vehicle);
+        const response = await api.post(`/Vehicles`, vehicle);
         if (response.data.status) {
           alert("Vehicle added successfully!");
           navigate("/vehicles");

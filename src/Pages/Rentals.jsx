@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AnimatedPage from "../components/AnimatedPage";
@@ -9,13 +8,13 @@ import AddButton from "../components/Addbutton";
 import Badge from "../components/Badge";
 import ConfirmModal from "../components/ConfirmModal";
 import SearchInput from "../components/SearchInput";
+import api from "../Services/api";
 import {
   IconFileText, IconList,
   IconClockHour4, IconCircleCheck, IconX, IconArrowBack,
   IconCar, IconCalendar, IconCurrencyDollar,
 } from "@tabler/icons-react";
 
-const API_URL = import.meta.env.VITE_API_CAR_RENTAL;
 
 function Rentals() {
   const [rentals_data, setRentals_data] = useState([]);
@@ -33,7 +32,7 @@ function Rentals() {
   const handleReturn = async (rentalId, vehicleId) => {
     if (!window.confirm("Are you sure you want to return this vehicle?")) return;
     try {
-      const response = await axios.put(`${API_URL}/Rentals/return/${rentalId}/${vehicleId}`);
+      const response = await api.put(`/Rentals/return/${rentalId}/${vehicleId}`);
       if (response.data.status) { alert("Vehicle returned successfully!"); loadRentalsData(); }
       else alert("Failed to return vehicle");
     } catch (error) { console.error(error); alert("Failed to return vehicle"); }
@@ -43,7 +42,7 @@ function Rentals() {
     const rentalId = confirmId;
     setConfirmId(null);
     try {
-      const response = await axios.delete(`${API_URL}/Rentals/${rentalId}`);
+      const response = await api.delete(`/Rentals/${rentalId}`);
       if (response.data.status) { alert("Rental deleted successfully!"); loadRentalsData(); }
       else alert("Failed to delete rental");
     } catch (error) { console.error(error); alert("Failed to delete rental"); }

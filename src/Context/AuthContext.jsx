@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 const AuthContext = createContext(null);
 const STORAGE_KEY = "car_rental_user";
-const API_URL = import.meta.env.VITE_API_CAR_RENTAL;
+const API_URL = import.meta.env.VITE_API_CAR_RENTAL; // ← this was missing
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -20,50 +20,36 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  const findUserByEmail = (users, email) => {
-    return users.find((u) => u.email?.toLowerCase() === email.toLowerCase());
-  };
-
   const login = async ({ email, password }) => {
     if (!API_URL) {
       return { success: false, message: "Backend API URL is not configured." };
     }
-
     try {
-      const endpoint = `${API_URL}/Users`;
-      const response = await axios.get(endpoint);
+      const response = await axios.post(`${API_URL}/auth/login`, {
+        email,
+        password,
+      });
       const result = response.data;
 
-      if (!result?.status || !Array.isArray(result.data)) {
-        return { success: false, message: "Unable to fetch user data from backend." };
-      }
-
-      const foundUser = findUserByEmail(result.data, email);
-      if (!foundUser) {
-        return { success: false, message: "Invalid email or password." };
-      }
-
-      if (!foundUser.isActive) {
-        return { success: false, message: "Your account is inactive." };
-      }
-
-      if (foundUser.passwordHash !== password) {
-        return { success: false, message: "Invalid email or password." };
+      if (!result?.status) {
+        return { success: false, message: result?.message || "Invalid email or password." };
       }
 
       const nextUser = {
-        userId: foundUser.userId,
-        fullName: foundUser.fullName || foundUser.email,
-        email: foundUser.email,
-        role: foundUser.role,
-        isActive: foundUser.isActive,
+        email: result.email,
+        role: result.role === "ROLE_ADMIN" ? "Admin" : "Staff",
+        token: result.token,
       };
 
       localStorage.setItem(STORAGE_KEY, JSON.stringify(nextUser));
       setUser(nextUser);
       return { success: true, user: nextUser };
+
     } catch (error) {
       console.error("Login failed:", error);
+      if (error.response?.status === 401) {
+        return { success: false, message: "Invalid email or password." };
+      }
       return { success: false, message: "Login failed. Please try again." };
     }
   };
@@ -72,35 +58,17 @@ export function AuthProvider({ children }) {
     if (!API_URL) {
       return { success: false, message: "Backend API URL is not configured." };
     }
-
     try {
-      const usersEndpoint = `${API_URL}/Users`;
-
-      // Check if email is already taken before creating the account
-      const existingResponse = await axios.get(usersEndpoint);
-      const existingResult = existingResponse.data;
-
-      if (existingResult?.status && Array.isArray(existingResult.data)) {
-        const alreadyExists = findUserByEmail(existingResult.data, email);
-        if (alreadyExists) {
-          return { success: false, message: "An account with this email already exists." };
-        }
-      }
-
-      const newUser = {
+      const response = await axios.post(`${API_URL}/Users`, {
         fullName: fullName.trim(),
         email: email.trim(),
         passwordHash: password.trim(),
         role,
-      };
-
-      const response = await axios.post(usersEndpoint, newUser);
+      });
       const result = response.data;
-
       if (!result?.status) {
         return { success: false, message: result?.message || "Registration failed." };
       }
-
       return { success: true };
     } catch (error) {
       console.error("Registration failed:", error);

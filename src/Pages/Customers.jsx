@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AnimatedPage from "../components/AnimatedPage";
@@ -9,12 +8,12 @@ import ActionButtons from "../components/Actionbuttons";
 import AddButton from "../components/Addbutton";
 import ConfirmModal from "../components/ConfirmModal";
 import SearchInput from "../components/SearchInput";
+import api from "../Services/api";
 import {
   IconUsers, IconList,
   IconUserCheck, IconUserOff, IconMail, IconPhone, IconId, IconCalendar,
 } from "@tabler/icons-react";
 
-const API_URL = import.meta.env.VITE_API_CAR_RENTAL;
 
 function Customers() {
   const [customers_data, setCustomers_data] = useState([]);
@@ -24,7 +23,7 @@ function Customers() {
 
   const loadCustomersData = async () => {
     try {
-      const response = await axios.get(`${API_URL}/Customers`);
+      const response = await api.get("/Customers");
       if (response.data.status) setCustomers_data(response.data.data);
     } catch (error) { console.error("Error loading customers data:", error); }
   };
@@ -33,7 +32,7 @@ function Customers() {
     const customerId = confirmId;
     setConfirmId(null);
     try {
-      const response = await axios.delete(`${API_URL}/Customers/${customerId}`);
+      const response = await api.delete(`/Customers/${customerId}`);
       if (response.data.status) { alert("Customer deleted successfully!"); loadCustomersData(); }
       else alert("Failed to delete customer");
     } catch (error) { console.error(error); alert("Failed to delete customer"); }

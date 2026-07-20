@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AnimatedPage from "../components/AnimatedPage";
@@ -9,13 +8,13 @@ import Badge from "../components/Badge";
 import ActionButtons from "../components/Actionbuttons";
 import ConfirmModal from "../components/ConfirmModal";
 import SearchInput from "../components/SearchInput";
+import api from "../Services/api";
 import {
   IconCreditCard, IconList,
   IconCircleCheck, IconClock, IconRefresh, IconCurrencyDollar,
   IconCar, IconCalendar,
 } from "@tabler/icons-react";
 
-const API_URL = import.meta.env.VITE_API_CAR_RENTAL;
 
 function Payments() {
   const [payments_data, setPayments_data] = useState([]);
@@ -28,9 +27,9 @@ function Payments() {
   const loadPaymentsData = async () => {
     try {
       const [paymentsRes, revenueRes, rentalsRes] = await Promise.all([
-        axios.get(`${API_URL}/Payments`),
-        axios.get(`${API_URL}/Payments/revenue`),
-        axios.get(`${API_URL}/Rentals`),
+        api.get("/Payments"),
+        api.get("/Payments/revenue"),
+        api.get("/Rentals"),
       ]);
       if (paymentsRes.data.status) setPayments_data(paymentsRes.data.data);
       if (revenueRes.data.status)  setTotalRevenue(revenueRes.data.data);
@@ -40,7 +39,7 @@ function Payments() {
 
   const handleUpdateStatus = async (paymentId, status) => {
     try {
-      const response = await axios.put(`${API_URL}/Payments/status/${paymentId}/${status}`);
+      const response = await api.put(`/Payments/status/${paymentId}/${status}`);
       if (response.data.status) { alert(`Payment marked as ${status}!`); loadPaymentsData(); }
       else alert("Failed to update payment status");
     } catch (error) { console.error(error); alert("Failed to update payment status"); }
@@ -50,7 +49,7 @@ function Payments() {
     const paymentId = confirmId;
     setConfirmId(null);
     try {
-      const response = await axios.delete(`${API_URL}/Payments/${paymentId}`);
+      const response = await api.delete(`/Payments/${paymentId}`);
       if (response.data.status) { alert("Payment deleted successfully!"); loadPaymentsData(); }
       else alert("Failed to delete payment");
     } catch (error) { console.error(error); alert("Failed to delete payment"); }

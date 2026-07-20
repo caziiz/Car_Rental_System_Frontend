@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import AnimatedPage from "../components/AnimatedPage";
@@ -8,8 +7,7 @@ import {
   IconEraser,
   IconArrowLeft,
 } from "@tabler/icons-react";
-
-const API_URL = import.meta.env.VITE_API_CAR_RENTAL;
+import api from "./api";  // same folder
 
 function AddEditCustomer() {
   const navigate = useNavigate();
@@ -46,7 +44,7 @@ function AddEditCustomer() {
 
   const loadCustomer = async () => {
     try {
-      const response = await axios.get(`${API_URL}/Customers/${customerId}`);
+      const response = await api.get(`/Customers/${customerId}`);
       const result = response.data;
 
       if (result.status) {
@@ -85,10 +83,7 @@ function AddEditCustomer() {
       };
 
       if (isEditing) {
-      const response = await axios.put(
-  `${API_URL}/Customers`,
-  customer
-);
+      const response = await api.put(`/Customers`, customer);
 
         if (response.data.status) {
           alert("Customer updated successfully!");
@@ -97,7 +92,7 @@ function AddEditCustomer() {
           alert("Failed to update customer");
         }
       } else {
-        const response = await axios.post(`${API_URL}/Customers`, customer);
+        const response = await api.post(`/Customers`, customer);
 
         if (response.data.status) {
           alert("Customer added successfully!");

@@ -1,9 +1,9 @@
-import axios from "axios";
 import { useState, useEffect } from "react";
 import AnimatedPage from "../components/AnimatedPage";
 import { useAuth } from "../Context/AuthContext";
 import StatCard from "../components/StatCard";
 import PageHeader from "../components/Pageheader";
+import api from "../Services/api";
 import {
   IconUsers,
   IconCar,
@@ -25,7 +25,6 @@ import {
   CartesianGrid,
 } from "recharts";
 
-const API_URL = import.meta.env.VITE_API_CAR_RENTAL;
 
 function Dashboard() {
   const { user } = useAuth();
@@ -39,10 +38,10 @@ function Dashboard() {
   const loadData = async () => {
     try {
       const [usersRes, vehiclesRes, revenueRes, paymentsRes] = await Promise.all([
-        axios.get(`${API_URL}/Users`),
-        axios.get(`${API_URL}/Vehicles`),
-        axios.get(`${API_URL}/Payments/revenue`),
-        axios.get(`${API_URL}/Payments`),
+        api.get(`/Users`),
+        api.get(`/Vehicles`),
+        api.get(`/Payments/revenue`),
+        api.get(`/Payments`),
       ]);
 
       if (usersRes.data.status)    setUsers(usersRes.data.data);

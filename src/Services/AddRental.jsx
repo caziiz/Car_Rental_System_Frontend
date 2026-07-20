@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AnimatedPage from "../components/AnimatedPage";
@@ -9,8 +8,7 @@ import {
   IconEraser,
   IconArrowLeft,
 } from "@tabler/icons-react";
-
-const API_URL = import.meta.env.VITE_API_CAR_RENTAL;
+import api from "./api";  // same folder
 
 function AddRental() {
   const navigate = useNavigate();
@@ -35,8 +33,8 @@ function AddRental() {
 const loadDropdowns = async () => {
   try {
     const [customersRes, vehiclesRes] = await Promise.all([
-      axios.get(`${API_URL}/Customers`),
-      axios.get(`${API_URL}/Vehicles`),
+      api.get(`/Customers`),
+      api.get(`/Vehicles`),
     ]);
     if (customersRes.data.status) setCustomers(
   customersRes.data.data.filter((c) => !c.isBlacklisted)
@@ -91,7 +89,7 @@ const loadDropdowns = async () => {
         createdAt:       new Date().toISOString(),
       };
 
-      const response = await axios.post(`${API_URL}/Rentals`, rental);
+      const response = await api.post(`/Rentals`, rental);
       if (response.data.status) {
         alert("Rental created successfully!");
         navigate("/rentals");
