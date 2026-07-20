@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AnimatedPage from "../components/AnimatedPage";
@@ -9,7 +10,6 @@ import AddButton from "../components/Addbutton";
 import Badge from "../components/Badge";
 import ConfirmModal from "../components/ConfirmModal";
 import SearchInput from "../components/SearchInput";
-import api from "../Services/api";
 import {
   IconUsers, IconList,
   IconUserCheck, IconShieldCheck, IconMail, IconCalendar,
@@ -21,10 +21,11 @@ function Users() {
   const [confirmId, setConfirmId]   = useState(null); // userId pending delete
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
+  const API_URL = import.meta.env.VITE_API_CAR_RENTAL;
 
   const loadUsersData = async () => {
     try {
-      const response = await api.get(`/Users`);
+      const response = await axios.get(`${API_URL}/Users`);
       if (response.data.status) setUsers_data(response.data.data);
     } catch (error) { console.error("Error loading users data:", error); }
   };
@@ -41,8 +42,8 @@ function Users() {
     const userId = confirmId;
     setConfirmId(null);
     try {
-      const response = await api.delete(
-        `/Users/${userId}?requestedBy=${currentUser.userId}`
+      const response = await axios.delete(
+        `${API_URL}/Users/${userId}?requestedBy=${currentUser.userId}`
       );
       if (response.data.status) { alert("User deleted successfully!"); loadUsersData(); }
       else alert(response.data.message || "Failed to delete user");

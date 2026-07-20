@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useState, useEffect } from "react";
 import AnimatedPage from "../components/AnimatedPage";
 import PageHeader from "../components/Pageheader";
@@ -11,8 +12,8 @@ import {
   IconPrinter,
   IconDownload,
 } from "@tabler/icons-react";
-import api from "../Services/api";
 
+const API_URL = import.meta.env.VITE_API_CAR_RENTAL;
 
 function Reports() {
   const [rentals, setRentals]     = useState([]);
@@ -25,10 +26,10 @@ function Reports() {
   const loadData = async () => {
     try {
       const [rentalsRes, paymentsRes, customersRes, vehiclesRes] = await Promise.all([
-        api.get(`/Rentals`),
-        api.get(`/Payments`),
-        api.get(`/Customers`),
-        api.get(`/Vehicles`),
+        axios.get(`${API_URL}/Rentals`),
+        axios.get(`${API_URL}/Payments`),
+        axios.get(`${API_URL}/Customers`),
+        axios.get(`${API_URL}/Vehicles`),
       ]);
       if (rentalsRes.data.status)   setRentals(rentalsRes.data.data);
       if (paymentsRes.data.status)  setPayments(paymentsRes.data.data);

@@ -1,7 +1,7 @@
+import axios from "axios";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AnimatedPage from "../components/AnimatedPage";
-import api from "./api";  // same folder
 import {
   IconCreditCard,
   IconDeviceFloppy,
@@ -9,6 +9,7 @@ import {
   IconArrowLeft,
 } from "@tabler/icons-react";
 
+const API_URL = import.meta.env.VITE_API_CAR_RENTAL;
 
 function AddPayment() {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ function AddPayment() {
 
   const loadRentals = async () => {
     try {
-      const response = await api.get(`/Rentals`);
+      const response = await axios.get(`${API_URL}/Rentals`);
       if (response.data.status) {
         setRentals(response.data.data.filter((r) => r.status === "Active"));
       }
@@ -99,7 +100,7 @@ function AddPayment() {
         notes,
         paymentDate:   new Date().toISOString(),
       };
-      const response = await api.post(`/Payments`, payment);
+      const response = await axios.post(`${API_URL}/Payments`, payment);
       if (response.data.status) {
         alert("Payment added successfully!");
         navigate("/payments");

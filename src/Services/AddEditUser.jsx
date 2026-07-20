@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import AnimatedPage from "../components/AnimatedPage";
@@ -9,7 +10,7 @@ import {
   IconEraser,
   IconArrowLeft,
 } from "@tabler/icons-react";
-import api from "./api";  // same folder
+
 function AddEditUser() {
   const navigate = useNavigate();
   const { userId } = useParams();
@@ -47,9 +48,11 @@ function AddEditUser() {
     setIsActive(true);
   };
 
+  const API_URL = import.meta.env.VITE_API_CAR_RENTAL;
+
   const loadUser = async () => {
     try {
-      const response = await api.get(`/Users/${userId}`);
+      const response = await axios.get(`${API_URL}/Users/${userId}`);
       const result = response.data;
       if (result.status) {
         const user = result.data[0];
@@ -82,7 +85,7 @@ function AddEditUser() {
       };
 
       if (isEditing) {
-        const response = await api.put(`/Users/${userId}`, user);
+        const response = await axios.put(`${API_URL}/Users/${userId}`, user);
         if (response.data.status) {
           alert("User updated successfully!");
           navigate("/users");
@@ -90,7 +93,7 @@ function AddEditUser() {
           alert("Failed to update user");
         }
       } else {
-        const response = await api.post(`/Users`, user);
+        const response = await axios.post(`${API_URL}/Users`, user);
         if (response.data.status) {
           alert("User added successfully!");
           navigate("/users");
