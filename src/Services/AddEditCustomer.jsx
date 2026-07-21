@@ -72,23 +72,21 @@ function AddEditCustomer() {
     if (!validateInputs()) return;
 
     try {
-      const customer = {
-        customerId: isEditing ? Number(customerId) : 0,
-        fullName,
-        email,
-        phone,
-        nationalId,
-        address,
-        licenseNumber,
+      const baseCustomer = {
+        fullName: fullName.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        nationalId: nationalId.trim(),
+        address: address.trim(),
+        licenseNumber: licenseNumber.trim(),
         isBlacklisted,
-        createdAt: new Date().toISOString(),
       };
 
       if (isEditing) {
-      const response = await axios.put(
-  `${API_URL}/Customers`,
-  customer
-);
+        const response = await axios.put(`${API_URL}/Customers`, {
+          ...baseCustomer,
+          customerId: Number(customerId),
+        });
 
         if (response.data.status) {
           alert("Customer updated successfully!");
@@ -97,7 +95,7 @@ function AddEditCustomer() {
           alert("Failed to update customer");
         }
       } else {
-        const response = await axios.post(`${API_URL}/Customers`, customer);
+        const response = await axios.post(`${API_URL}/Customers`, baseCustomer);
 
         if (response.data.status) {
           alert("Customer added successfully!");

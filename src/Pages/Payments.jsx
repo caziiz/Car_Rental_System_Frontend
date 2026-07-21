@@ -22,20 +22,36 @@ function Payments() {
   const [rentals_data, setRentals_data]   = useState([]);
   const [totalRevenue, setTotalRevenue]   = useState(0);
   const [search, setSearch]               = useState("");
-  const [confirmId, setConfirmId]         = useState(null); // paymentId pending delete
+  const [confirmId, setConfirmId]         = useState(null);
   const navigate = useNavigate();
 
   const loadPaymentsData = async () => {
     try {
-      const [paymentsRes, revenueRes, rentalsRes] = await Promise.all([
+      const [paymentsRes, rentalsRes] = await Promise.all([
         axios.get(`${API_URL}/Payments`),
-        axios.get(`${API_URL}/Payments/revenue`),
         axios.get(`${API_URL}/Rentals`),
       ]);
-      if (paymentsRes.data.status) setPayments_data(paymentsRes.data.data);
-      if (revenueRes.data.status)  setTotalRevenue(revenueRes.data.data);
-      if (rentalsRes.data.status)  setRentals_data(rentalsRes.data.data);
-    } catch (error) { console.error("Error loading payments data:", error); }
+
+      console.log("Payments response:", paymentsRes.data);
+      console.log("Rentals response:", rentalsRes.data);
+
+      if (paymentsRes.data.status) {
+        const payments = Array.isArray(paymentsRes.data.data) ? paymentsRes.data.data : [];
+        setPayments_data(payments);
+
+        const revenue = payments
+          .filter((p) => p.status === "Completed")
+          .reduce((sum, p) => sum + p.amount, 0);
+        setTotalRevenue(revenue.toFixed(2));
+      }
+
+      if (rentalsRes.data.status) {
+        const rentals = Array.isArray(rentalsRes.data.data) ? rentalsRes.data.data : [];
+        setRentals_data(rentals);
+      }
+    } catch (error) {
+      console.error("Error loading payments data:", error);
+    }
   };
 
   const handleUpdateStatus = async (paymentId, status) => {
@@ -128,10 +144,10 @@ function Payments() {
         <PageHeader title="Payment Management" icon={IconCreditCard} />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <StatCard label="Total Revenue" value={`$${totalRevenue}`} icon={IconCurrencyDollar} iconColor="text-blue-500" valueColor="text-blue-600" />
-          <StatCard label="Completed"     value={completedPayments}  icon={IconCircleCheck}     iconColor="text-green-500" valueColor="text-green-600" />
-          <StatCard label="Pending"       value={pendingPayments}    icon={IconClock}            iconColor="text-yellow-500" valueColor="text-yellow-600" />
-          <StatCard label="Refunded"      value={refundedPayments}   icon={IconRefresh}          iconColor="text-red-500" valueColor="text-red-600" />
+          <StatCard label="Total Revenue" value={`$${totalRevenue}`} icon={IconCurrencyDollar} iconColor="text-blue-500"   valueColor="text-blue-600" />
+          <StatCard label="Completed"     value={completedPayments}  icon={IconCircleCheck}    iconColor="text-green-500"  valueColor="text-green-600" />
+          <StatCard label="Pending"       value={pendingPayments}    icon={IconClock}           iconColor="text-yellow-500" valueColor="text-yellow-600" />
+          <StatCard label="Refunded"      value={refundedPayments}   icon={IconRefresh}         iconColor="text-red-500"   valueColor="text-red-600" />
         </div>
 
         <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-lg overflow-hidden">

@@ -70,25 +70,26 @@ function AddEditVehicle() {
     if (isEditing) loadVehicle();
   }, []);
 
-  const handleSubmit = async () => {
+const handleSubmit = async () => {
     if (!validateInputs()) return;
 
     try {
-      const vehicle = {
-        vehicleId: isEditing ? Number(vehicleId) : 0,
-        make,
-        model,
+      const baseVehicle = {
+        make: make.trim(),
+        model: model.trim(),
         year: Number(year),
-        licensePlate,
+        licensePlate: licensePlate.trim(),
         category,
         dailyRate: Number(dailyRate),
         status,
         mileage: Number(mileage),
-        createdAt: new Date().toISOString(),
       };
 
       if (isEditing) {
-        const response = await axios.put(`${API_URL}/Vehicles`, vehicle);
+        const response = await axios.put(`${API_URL}/Vehicles`, {
+          ...baseVehicle,
+          vehicleId: Number(vehicleId),
+        });
         if (response.data.status) {
           alert("Vehicle updated successfully!");
           navigate("/vehicles");
@@ -96,7 +97,7 @@ function AddEditVehicle() {
           alert("Failed to update vehicle");
         }
       } else {
-        const response = await axios.post(`${API_URL}/Vehicles`, vehicle);
+        const response = await axios.post(`${API_URL}/Vehicles`, baseVehicle);
         if (response.data.status) {
           alert("Vehicle added successfully!");
           navigate("/vehicles");

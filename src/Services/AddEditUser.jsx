@@ -70,22 +70,23 @@ function AddEditUser() {
     if (isEditing) loadUser();
   }, []);
 
-  const handleSubmit = async () => {
+const handleSubmit = async () => {
     if (!validateInputs()) return;
 
     try {
-      const user = {
-        userId: isEditing ? Number(userId) : 0,
-        fullName,
-        email,
-        passwordHash: passwordHash || "UNCHANGED",
+      const baseUser = {
+        fullName: fullName.trim(),
+        email: email.trim(),
+        passwordHash: passwordHash.trim() || "UNCHANGED",
         role,
         isActive,
-        createdAt: new Date().toISOString(),
       };
 
       if (isEditing) {
-        const response = await axios.put(`${API_URL}/Users/${userId}`, user);
+        const response = await axios.put(`${API_URL}/Users/${userId}`, {
+          ...baseUser,
+          userId: Number(userId),
+        });
         if (response.data.status) {
           alert("User updated successfully!");
           navigate("/users");
@@ -93,7 +94,7 @@ function AddEditUser() {
           alert("Failed to update user");
         }
       } else {
-        const response = await axios.post(`${API_URL}/Users`, user);
+        const response = await axios.post(`${API_URL}/Users`, baseUser);
         if (response.data.status) {
           alert("User added successfully!");
           navigate("/users");

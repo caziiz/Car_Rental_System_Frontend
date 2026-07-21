@@ -5,24 +5,11 @@ import { useAuth } from "../Context/AuthContext";
 import StatCard from "../components/StatCard";
 import PageHeader from "../components/Pageheader";
 import {
-  IconUsers,
-  IconCar,
-  IconCircleCheck,
-  IconTool,
-  IconCurrencyDollar,
+  IconUsers, IconCar, IconCircleCheck, IconTool, IconCurrencyDollar,
 } from "@tabler/icons-react";
 import {
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  Legend,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
+  ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid,
 } from "recharts";
 
 const API_URL = import.meta.env.VITE_API_CAR_RENTAL;
@@ -38,17 +25,24 @@ function Dashboard() {
 
   const loadData = async () => {
     try {
-      const [usersRes, vehiclesRes, revenueRes, paymentsRes] = await Promise.all([
+      const [usersRes, vehiclesRes, paymentsRes] = await Promise.all([
         axios.get(`${API_URL}/Users`),
         axios.get(`${API_URL}/Vehicles`),
-        axios.get(`${API_URL}/Payments/revenue`),
         axios.get(`${API_URL}/Payments`),
       ]);
 
-      if (usersRes.data.status)    setUsers(usersRes.data.data);
-      if (vehiclesRes.data.status) setVehicles(vehiclesRes.data.data);
-      if (revenueRes.data.status)  setTotalRevenue(revenueRes.data.data);
-      if (paymentsRes.data.status) setPayments(paymentsRes.data.data);
+      if (usersRes.data.status)    setUsers(Array.isArray(usersRes.data.data) ? usersRes.data.data : []);
+      if (vehiclesRes.data.status) setVehicles(Array.isArray(vehiclesRes.data.data) ? vehiclesRes.data.data : []);
+      if (paymentsRes.data.status) {
+        const payments = Array.isArray(paymentsRes.data.data) ? paymentsRes.data.data : [];
+        setPayments(payments);
+
+        // Calculate total revenue locally from completed payments
+        const revenue = payments
+          .filter((p) => p.status === "Completed")
+          .reduce((sum, p) => sum + p.amount, 0);
+        setTotalRevenue(revenue.toFixed(2));
+      }
     } catch (error) {
       console.error("Error loading dashboard data:", error);
     }
@@ -78,58 +72,27 @@ function Dashboard() {
     <AnimatedPage>
       <div className="min-h-screen bg-slate-100 dark:bg-zinc-900 p-6">
 
-        {/* Header */}
         <PageHeader
           title="Dashboard"
           subtitle={`Welcome back, ${user?.fullName || user?.email || "User"} 👋`}
           rightContent={`Role: ${user?.role || "Staff"}`}
-/>
+        />
 
-        {/* Stats Cards */}
         <div className={`grid grid-cols-1 ${isAdmin ? "md:grid-cols-5" : "md:grid-cols-2"} gap-4 mb-6`}>
           {isAdmin && (
-            <StatCard
-              label="Total Users"
-              value={users.length}
-              icon={IconUsers}
-              iconColor="text-blue-500"
-            />
+            <StatCard label="Total Users"    value={users.length}      icon={IconUsers}         iconColor="text-blue-500" />
           )}
           {isAdmin && (
-            <StatCard
-              label="Total Revenue"
-              value={`$${totalRevenue}`}
-              icon={IconCurrencyDollar}
-              iconColor="text-blue-500"
-              valueColor="text-blue-600"
-            />
+            <StatCard label="Total Revenue"  value={`$${totalRevenue}`} icon={IconCurrencyDollar} iconColor="text-blue-500" valueColor="text-blue-600" />
           )}
-          <StatCard
-            label="Total Vehicles"
-            value={vehicles.length}
-            icon={IconCar}
-            iconColor="text-indigo-500"
-          />
-          <StatCard
-            label="Available"
-            value={availableVehicles}
-            icon={IconCircleCheck}
-            iconColor="text-green-500"
-            valueColor="text-green-600"
-          />
-          <StatCard
-            label="Maintenance"
-            value={maintenanceVehicles}
-            icon={IconTool}
-            iconColor="text-orange-500"
-            valueColor="text-orange-600"
-          />
+          <StatCard label="Total Vehicles"   value={vehicles.length}   icon={IconCar}           iconColor="text-indigo-500" />
+          <StatCard label="Available"        value={availableVehicles} icon={IconCircleCheck}   iconColor="text-green-500"  valueColor="text-green-600" />
+          <StatCard label="Maintenance"      value={maintenanceVehicles} icon={IconTool}        iconColor="text-orange-500" valueColor="text-orange-600" />
         </div>
 
         {isAdmin ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-            {/* Bar Chart - Live Monthly Revenue */}
             <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-lg p-6">
               <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
                 Monthly Revenue
@@ -155,15 +118,12 @@ function Dashboard() {
               )}
             </div>
 
-            {/* Pie Chart - Vehicle Status */}
             <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-lg p-6">
               <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">Vehicle Status</h2>
               <ResponsiveContainer width="100%" height={280}>
                 <PieChart>
                   <Pie data={pieData} cx="50%" cy="50%" innerRadius={70} outerRadius={110} paddingAngle={4} dataKey="value">
-                    {pieData.map((entry, index) => (
-                      <Cell key={index} fill={entry.color} />
-                    ))}
+                    {pieData.map((entry, index) => <Cell key={index} fill={entry.color} />)}
                   </Pie>
                   <Tooltip contentStyle={{ background: "#18181b", border: "1px solid #3f3f46", color: "#fff", borderRadius: 8 }} />
                   <Legend />
@@ -175,15 +135,12 @@ function Dashboard() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-            {/* Staff only sees vehicle status */}
             <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-lg p-6">
               <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">Vehicle Status</h2>
               <ResponsiveContainer width="100%" height={280}>
                 <PieChart>
                   <Pie data={pieData} cx="50%" cy="50%" innerRadius={70} outerRadius={110} paddingAngle={4} dataKey="value">
-                    {pieData.map((entry, index) => (
-                      <Cell key={index} fill={entry.color} />
-                    ))}
+                    {pieData.map((entry, index) => <Cell key={index} fill={entry.color} />)}
                   </Pie>
                   <Tooltip contentStyle={{ background: "#18181b", border: "1px solid #3f3f46", color: "#fff", borderRadius: 8 }} />
                   <Legend />
